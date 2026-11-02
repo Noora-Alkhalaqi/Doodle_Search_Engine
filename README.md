@@ -2,6 +2,8 @@
 
 A visual search engine for hand-drawn doodles. Draw a sketch, upload a picture, or take a photo of a drawing on paper, and the app finds the 25 most similar doodles in a gallery of 6,750 images.
 
+**Live demo:** https://doodlesearchengine.streamlit.app/
+
 Search works by comparing image embeddings from a pretrained **MobileNetV2** (ImageNet weights) using cosine similarity. The model is not fine-tuned.
 
 ## Features
