@@ -89,24 +89,21 @@ def run_search(image, show_input=None):
 # ---------- 4. UI ----------
 st.title("Doodle Search")
 
-tab_draw, tab_upload, tab_camera = st.tabs(["Draw", "Upload", "Camera"])
+canvas_args = dict(
+    fill_color="rgba(255, 255, 255, 0)",
+    stroke_width=8,
+    stroke_color="#000000",
+    background_color="#FFFFFF",
+    height=280,
+    width=280,
+    drawing_mode="freedraw",
+    update_streamlit=True,
+    key="canvas",
+)
+try:
+    canvas = st_canvas(**canvas_args, return_image_data=True)
+except TypeError:
+    canvas = st_canvas(**canvas_args)
 
-with tab_draw:
-    canvas_args = dict(
-        fill_color="rgba(255, 255, 255, 0)",
-        stroke_width=8,
-        stroke_color="#000000",
-        background_color="#FFFFFF",
-        height=280,
-        width=280,
-        drawing_mode="freedraw",
-        update_streamlit=True,
-        key="canvas",
-    )
-    try:
-        canvas = st_canvas(**canvas_args, return_image_data=True)
-    except TypeError:
-        canvas = st_canvas(**canvas_args)
-
-    if canvas.image_data is not None:
-        run_search(canvas.image_data.astype("uint8"))
+if canvas.image_data is not None:
+    run_search(canvas.image_data.astype("uint8"))

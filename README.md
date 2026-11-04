@@ -1,6 +1,6 @@
 # Doodle Search Engine
 
-A visual search engine for hand-drawn doodles. Draw a sketch, upload a picture, or take a photo of a drawing on paper, and the app finds the 25 most similar doodles in a gallery of 6,750 images.
+A visual search engine for hand-drawn doodles. Draw a sketch and the app finds the 25 most similar doodles in a gallery of 6,750 images.
 
 **Live demo:** https://doodlesearchengine.streamlit.app/
 
@@ -8,9 +8,9 @@ Search works by comparing image embeddings from a pretrained **MobileNetV2** (Im
 
 ## Features
 
-- **Three input modes**: a drawing canvas, image upload (PNG/JPG), and camera capture.
-- **Query preprocessing**: every input is converted to the same format as the gallery (white strokes on black, cropped, centered, 28×28), so a phone photo of a pen sketch can be compared with canvas drawings.
-- **"What the model sees" preview**: the app shows the processed 28×28 query next to your input.
+- **Drawing canvas**: sketch directly in the browser and results update as you draw.
+- **Query preprocessing**: every drawing is converted to the same format as the gallery (white strokes on black, cropped, centered, 28×28).
+- **"What the model sees" preview**: the app shows the processed 28×28 query.
 - **Similarity threshold**: if the best match scores below the configured threshold, the app shows "Nothing similar found" instead of weak results.
 
 ## How it works
