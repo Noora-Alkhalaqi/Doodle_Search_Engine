@@ -110,15 +110,3 @@ with tab_draw:
 
     if canvas.image_data is not None:
         run_search(canvas.image_data.astype("uint8"))
-
-with tab_upload:
-    file = st.file_uploader("Upload a PNG or JPG", type=["png", "jpg", "jpeg"])
-    if file is not None:
-        photo = ImageOps.exif_transpose(Image.open(file))
-        run_search(photo, show_input=photo)
-
-with tab_camera:
-    shot = st.camera_input("Take a photo of a drawing on paper")
-    if shot is not None:
-        photo = Image.open(shot)
-        run_search(photo, show_input=photo)
