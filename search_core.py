@@ -4,10 +4,7 @@ from PIL import Image, ImageFilter
 from keras.applications.mobilenet_v2 import preprocess_input
 
 
-# ---------- Task 2: model input and embedding ----------
-
 def to_model_input(images_28, invert=False):
-    # Prepare grayscale images for MobileNetV2
     images = np.array(images_28, dtype="float32")
     if invert:
         images = 255.0 - images
@@ -21,22 +18,17 @@ def to_model_input(images_28, invert=False):
 def embed(model, images_28, invert=False, batch_size=64):
     features = []
     for i in range(0, len(images_28), batch_size):
-        batch = images_28[i:i + batch_size]
-        batch = to_model_input(batch, invert=invert)
-        predictions = model.predict(batch, verbose=0)
-        features.append(predictions)
-
+        batch = to_model_input(images_28[i:i + batch_size], invert=invert)
+        features.append(model.predict(batch, verbose=0))
     features = np.concatenate(features, axis=0)
+
     features = features / np.linalg.norm(features, axis=1, keepdims=True)
     return features
 
 
-# ---------- Task 3: make every query look like the gallery ----------
-
 def to_gray(image):
     if hasattr(image, "mode") and image.mode not in ("RGB", "RGBA", "L"):
         image = image.convert("RGBA")
-        
     img = np.asarray(image).astype("float32")
 
     if img.ndim == 2:
@@ -92,8 +84,6 @@ def preprocess_query(image, threshold=128):
         return None
     return resize_28(squared)
 
-
-# ---------- Task 4: search ----------
 
 def search(query_vector, embeddings, k):
     query_vector = np.array(query_vector).flatten()

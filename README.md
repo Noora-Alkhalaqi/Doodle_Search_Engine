@@ -1,6 +1,6 @@
 # Doodle Search Engine
 
-A visual search engine for hand-drawn doodles. Draw a sketch and the app finds the 25 most similar doodles in a gallery of 6,750 images.
+A visual search engine for hand-drawn doodles. Draw a sketch and the app finds the 25 most similar doodles in a gallery of 6,750 images from [Google Quick, Draw!](https://github.com/googlecreativelab/quickdraw-dataset).
 
 **Live demo:** https://doodlesearchengine.streamlit.app/
 
@@ -12,6 +12,14 @@ Search works by comparing image embeddings from a pretrained **MobileNetV2** (Im
 - **Query preprocessing**: every drawing is converted to the same format as the gallery (white strokes on black, cropped, centered, 28×28).
 - **"What the model sees" preview**: the app shows the processed 28×28 query.
 - **Similarity threshold**: if the best match scores below the configured threshold, the app shows "Nothing similar found" instead of weak results.
+
+## Dataset
+
+The gallery comes from the Quick, Draw! 28×28 numpy bitmaps. It covers 15 categories:
+
+cat, dog, sun, smiley face, moon, cup, bucket, apple, tree, house, car, bicycle, clock, flower, fish
+
+For each category, 500 drawings are sampled with a fixed seed (42). Of these, 450 go into the gallery (15 × 450 = 6,750) and 50 are held out as test queries, which are used to calibrate the similarity threshold.
 
 ## How it works
 
@@ -27,8 +35,10 @@ Search works by comparing image embeddings from a pretrained **MobileNetV2** (Im
 
 ```
 Doodle_Search_Engine/
-├── app.py              # Streamlit UI: model/index loading, input tabs, results grid
-├── search_core.py      # Preprocessing, embedding, and search functions
+├── app.py                    # Streamlit UI: model/index loading, drawing canvas, results grid
+├── search_core.py            # Preprocessing, embedding, and search functions
+├── doodleSearchEngine.ipynb  # Notebook: data download, embedding, threshold calibration
+├── requirements.txt
 └── index/
     ├── config.json         # Search settings (threshold, top_k, invert)
     ├── embeddings.npy      # (6750, 1280) L2-normalized gallery embeddings
@@ -41,7 +51,7 @@ Doodle_Search_Engine/
 Requires Python 3.9+.
 
 ```bash
-pip install streamlit streamlit-drawable-canvas tensorflow numpy pillow
+pip install -r requirements.txt
 ```
 
 The MobileNetV2 ImageNet weights are downloaded automatically by Keras on first run.
@@ -62,13 +72,21 @@ Then open the local URL Streamlit prints (usually http://localhost:8501).
 
 | Key         | Default  | Description                                                           |
 |-------------|----------|-----------------------------------------------------------------------|
-| `threshold` | `0.8012` | Minimum cosine similarity of the top match for results to be shown.    |
+| `threshold` | `0.8012` | Minimum cosine similarity of the top match for results to be shown. Set to the 5th percentile of the top-1 scores of the held-out queries. |
 | `top_k`     | `25`     | Number of results returned, shown in rows of 5 (a 5×5 grid by default). |
 | `invert`    | `false`  | Whether to invert pixel values before embedding. Must match how the gallery embeddings were built. |
 
 ## Rebuilding the index
 
-The `index/` files were produced ahead of time. To rebuild them with your own 28×28 gallery (white strokes on black, `uint8`), use the same `embed` function so queries and gallery are embedded the same way:
+The `index/` files were produced ahead of time by [doodleSearchEngine.ipynb](doodleSearchEngine.ipynb). The notebook was written for Google Colab and:
+
+1. Downloads the 15 categories from the Quick, Draw! dataset into `data/raw/`.
+2. Samples and splits the drawings into the gallery and held-out queries.
+3. Embeds the gallery with MobileNetV2 and saves `embeddings.npy`, `gallery_images.npy` and `gallery_labels.npy`.
+4. Embeds the held-out queries, sets `threshold` to the 5th percentile of their top-1 similarity scores, and writes `config.json`.
+5. Zips `index/` and downloads it (Colab only; skip this cell when running locally).
+
+To build the index from your own 28×28 gallery (white strokes on black, `uint8`), use the same `embed` function so queries and gallery are embedded the same way:
 
 ```python
 import numpy as np
@@ -89,5 +107,5 @@ If you change the gallery, you may also need to adjust `threshold` in `config.js
 ## Tips for better results
 
 - Draw a single, clear object with dark strokes on a light background.
-- For photos, use plain paper and even lighting. Shadows darker than the threshold (128) show up as strokes.
+- Draw strokes large enough to fill most of the canvas. Small details are lost when the drawing is shrunk to 28×28.
 - Check the "what the model sees" preview. If it looks wrong, the matches will be too.
